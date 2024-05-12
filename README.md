@@ -1,4 +1,5 @@
 
+
 <p align="center">
   <img src="resource/logo.png" alt="Logo" width="300">
 </p>
@@ -16,10 +17,38 @@ This project requires Python 3.11. If you don't have Python installed, you can d
 Once you have Python installed, you can install the project as follows:
 
 ```bash
-git clone https://github.com/username/project.git
-cd project
+git clone https://github.com/elopez2021/soundvault.git
+cd soundvault
 pip install -r requirements.txt
 ```
+
+## Usage
+
+Once you have installed the project, you can run it as follows:
+
+```bash
+python main.py
+```
+
+Here are some screenshots of the application in action:
+
+Home Section:
+
+![image](demo/home.png)
+
+Download Section:
+
+![image](demo/download.png)
+
+Normalize Section:
+
+![image](demo/normalize.png)
+![image](demo/normalizing.png)
+
+Sort Section:
+
+![image](demo/sort.png)
+![image](demo/sorting.png)
 
 ## Credits
 
