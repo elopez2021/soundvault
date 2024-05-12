@@ -1,10 +1,7 @@
-
-
-<p align="center">
+<div align="center">
   <img src="resource/logo.png" alt="Logo" width="300">
-</p>
-
-<h1 align="center">SoundVault</h1>
+  <h1>SoundVault</h1>
+</div>
 
 ## About
 
@@ -29,6 +26,8 @@ Once you have installed the project, you can run it as follows:
 ```bash
 python main.py
 ```
+
+## Demo
 
 Here are some screenshots of the application in action:
 
