@@ -54,4 +54,4 @@ Sort Section:
 This project was made possible just because of the following libraries:
 
 - [spotDL](https://github.com/spotDL/spotify-downloader): A library to download Spotify songs.
-- [FluentWidgets](https://github.com/PyQt5/FluentWidgets): A library to create fluent design widgets in PyQt5.
+- [FluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets.git): A library to create fluent design widgets in PyQt5.
