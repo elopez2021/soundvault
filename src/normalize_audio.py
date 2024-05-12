@@ -107,7 +107,6 @@ class NormalizeThread(QThread):
 
                         total_normalized_files += 1
                         self.progress_update.emit(int((total_normalized_files / total_files) * 100))
-                        print("Percentage ",(total_normalized_files / total_files) * 100)
 
                         self.normalized_audio.emit(f"Normalized volume of {file_path}")
 
