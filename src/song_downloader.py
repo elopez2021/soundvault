@@ -31,7 +31,7 @@ from threading import Thread
 
 
 # Global thread pool and image queue
-image_queue = Queue()
+image_queue = Queue() #receives a tuple of (url, cover)
 
 def worker(image_queue):
     while True:
