@@ -87,7 +87,7 @@ class DownloaderThread(QThread):
 
             self.process = subprocess.Popen([
                 sys.executable, "-u",
-                "download.py",
+                "src/download.py",
                 '--song_url',
                 self.query,
                 '--output', self.custom_directory,
@@ -101,6 +101,7 @@ class DownloaderThread(QThread):
                 print("Output from process:", self.process.stdout)
 
 
+
             # Read from self.process.stdout line by line
             for line in iter(self.process.stdout.readline, ''):
                 line = line.strip()
@@ -110,17 +111,19 @@ class DownloaderThread(QThread):
                     #print(f"Parsed JSON: {data}")
                 except json.JSONDecodeError:
                     print(f"Failed to parse line as JSON: {line}")
+            
+            print("passed the loop")
 
             # Read from self.process.stderr line by line
-            """
+            
             for line in iter(self.process.stderr.readline, ''):
                 line = line.strip()
                 print(f"Error from process: {line}")
-            """
+            
             if self.process:            
                 return_code = self.process.wait()
-                self.process.stdout.close()
             else:
+                print("Process is None")
                 self.stopped = True
 
             if self.stopped == True:
@@ -128,6 +131,7 @@ class DownloaderThread(QThread):
             elif return_code == 0:
                 self.finished.emit("Download Completed!")
             else:
+                print(f"Download failed with return code: {return_code}")
                 self.finished.emit("Download Failed!")
 
         except Exception as e:
@@ -140,6 +144,10 @@ class DownloaderThread(QThread):
                 print(stat)
             """
             self.finished.emit("Download Failed!")
+        finally:
+            self.process.stdout.close()
+            
+
     def stop(self):
         if self.process is not None:
             self.process.terminate()

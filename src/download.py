@@ -20,16 +20,7 @@ from spotdl.types.song import Song
 @click.option('--format', default='mp3', help='The format of the downloaded songs.')
 @click.option('--song_url', prompt='Spotify song URL', help='The Spotify URL of the song to download.')
 def download_song(output, format, song_url):
-    """
-    # Configure logging
-    logger = logging.getLogger('spotdl')
-    logger.setLevel(logging.DEBUG)
 
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
-
-    logger.addHandler(console_handler)
-    """
     global spotdl
 
     downloader_settings: DownloaderOptionalOptions = {'output': output, 'format': format}
