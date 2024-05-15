@@ -112,13 +112,13 @@ class DownloaderThread(QThread):
                 except json.JSONDecodeError:
                     print(f"Failed to parse line as JSON: {line}")
             
-            print("passed the loop")
 
             # Read from self.process.stderr line by line
-            
-            for line in iter(self.process.stderr.readline, ''):
-                line = line.strip()
-                print(f"Error from process: {line}")
+
+            if self.process.stderr is not None:            
+                for line in iter(self.process.stderr.readline, ''):
+                    line = line.strip()
+                    print(f"Error from process: {line}")
             
             if self.process:            
                 return_code = self.process.wait()
@@ -145,7 +145,8 @@ class DownloaderThread(QThread):
             """
             self.finished.emit("Download Failed!")
         finally:
-            self.process.stdout.close()
+            if self.process is not None:
+                self.process.terminate()
             
 
     def stop(self):
