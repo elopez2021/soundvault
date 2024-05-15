@@ -1,5 +1,9 @@
 # coding:utf-8
+import os
+from pathlib import Path
 import sys
+import platform
+
 from PyQt5.QtCore import Qt, QRect, QUrl, QSize
 from PyQt5.QtGui import QIcon, QPainter, QImage, QBrush, QColor, QFont, QDesktopServices, QPixmap
 from PyQt5.QtWidgets import QApplication, QFrame, QStackedWidget, QHBoxLayout, QLabel, QVBoxLayout
@@ -12,6 +16,12 @@ from qfluentwidgets import SplashScreen
 from src.song_downloader import Song
 from src.sort_songs import SortSongs
 from src.normalize_audio import NormalizeAudio
+
+
+from spotdl.utils.ffmpeg import is_ffmpeg_installed
+from src.ffmpeg_utils import download_ffmpeg, download_ffprobe, is_ffprobe_installed
+
+
 class Widget(QFrame):
 
     def __init__(self, text: str, parent=None):
@@ -162,18 +172,6 @@ class Window(FramelessWindow):
         #!IMPORTANT: This line of code needs to be uncommented if the return button is enabled
         # qrouter.push(self.stackWidget, widget.objectName())
 
-    def showMessageBox(self):
-        w = MessageBox(
-            'Support the author🥰',
-            'Personal development is not easy, if this project has helped you, you can consider buying the author a bottle of happy water🥤. Your support is the motivation for the author to develop and maintain the project🚀',
-            self
-        )
-        w.yesButton.setText('Coming, bro')
-        w.cancelButton.setText('Definitely next time')
-
-        if w.exec():
-            QDesktopServices.openUrl(QUrl("https://afdian.net/a/zhiyiYo"))
-
 
 if __name__ == '__main__':
     QApplication.setHighDpiScaleFactorRoundingPolicy(
@@ -181,6 +179,51 @@ if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
+    if not is_ffmpeg_installed():
+        os_name = platform.system().lower()
+        print("FFmpeg is not installed.")
+        if os_name == "windows":
+            print("FFmpeg is going to be installed for you. Please wait...")
+            try:
+                path = download_ffmpeg()
+                if path is not None:
+                    print('FFmpeg has been installed successfully.')
+                else:
+                    print('Failed to install FFmpeg.')
+                    sys.exit(1)
+            except Exception as e:
+                print(f'Failed to install FFmpeg: {e}')
+                sys.exit(1)
+        elif os_name == "linux":
+            print("You need to run the following command on your terminal to install FFmpeg:")
+            print("sudo apt update")
+            print("sudo apt-get install ffmpeg")
+        elif os_name == "darwin":
+            print("You need to run the following command on your terminal to install FFmpeg:")
+            print("brew install ffmpeg")
+        else:
+            print("FFmpeg is not available for your system.")
+        
+        print('FFmpeg is going to be installed. Please wait...')
+    
+    if not is_ffprobe_installed():
+        print("FFprobe is not installed.")
+        if platform.system().lower() == "windows":
+            print("FFprobe is going to be installed for you. Please wait...")
+            try:
+                if download_ffprobe():
+                    print('FFprobe has been installed successfully.')
+                else:
+                    print('Failed to install FFprobe.')
+                    sys.exit(1)
+            except Exception as e:
+                print(f'Failed to install FFprobe: {e}')
+                sys.exit(1)
+        else:
+            print("Please install it.")
+            sys.exit(1)
+
+            
     app = QApplication(sys.argv)
     w = Window()
     w.show()
