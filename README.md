@@ -19,6 +19,27 @@ cd soundvault
 pip install -r requirements.txt
 ```
 
+This tool also requires `ffmpeg` to be installed on your system. You can install it using the following commands:
+
+### On Ubuntu/Debian:
+
+```bash
+sudo apt update
+sudo apt install ffmpeg
+```
+
+### On macOS:
+```bash
+brew install ffmpeg
+```
+
+### On Windows:
+
+You can download `ffmpeg` from the official website [here](https://ffmpeg.org/download.html). After downloading, extract the files and add the `bin` directory to your system's PATH.
+
+The tool can also install `ffmpeg` for you. Just run the program and it will check if `ffmpeg` is installed. If not, it will automatically download and install it for you in the project directory. This feature is currently only available for Windows users.
+
+
 ## Usage
 
 Once you have installed the project, you can run it as follows:
@@ -48,6 +69,10 @@ Sort Section:
 
 ![image](demo/sort.png)
 ![image](demo/sorting.png)
+
+## Disclaimer
+
+This tool is provided for personal use only. As the author of this tool, I do not support the downloading of copyrighted content without the permission of the copyright holder. The user is solely responsible for any use of the tool. I am not responsible for any infringements on the rights of the copyright holders resulting from the use of this tool.
 
 ## Credits
 

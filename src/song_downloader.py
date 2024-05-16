@@ -25,46 +25,50 @@ tracemalloc.start()
 
 import requests
 
+from queue import Queue
+from threading import Thread
 
-class DownloadImageRunnable(QRunnable):
-    def __init__(self, url, cover):
-        super().__init__()
-        self.url = url
-        self.cover = cover
 
-    @pyqtSlot()
-    def run(self):
-        response = requests.get(self.url)
-        image_data = response.content
 
-        pixmap = QPixmap()
-        pixmap.loadFromData(image_data)
-        self.cover.setPixmap(pixmap)
-        self.cover.scaledToWidth(64)
-        self.cover.setBorderRadius(8, 8, 8, 8)
+# Global thread pool and image queue
+image_queue = Queue() #receives a tuple of (url, cover)
 
-#Set global pool for loading the images
-pool = QThreadPool.globalInstance()
-pool.setMaxThreadCount(6)
-limit = 0
+def worker(image_queue):
+    while True:
+        url, cover = image_queue.get()
+        download_and_set_image(url, cover)
+        image_queue.task_done()
+
+for _ in range(4):  # Limit to 4 concurrent downloads
+    worker_thread = Thread(target=worker, args=(image_queue,))
+    worker_thread.daemon = True
+    worker_thread.start()
+
+def download_and_set_image(url, cover):
+    response = requests.get(url)
+    image_data = response.content
+    pixmap = QPixmap()
+    pixmap.loadFromData(image_data)
+    cover.setPixmap(pixmap)
+    cover.scaledToWidth(64)
+    cover.setBorderRadius(8, 8, 8, 8)
+
+
 class CustomWidget(QWidget):
     # Add a class attribute for the QThreadPool
     def __init__(self, imagePath):
         super().__init__()
-        global pool
-        global limit
         self.layout = QHBoxLayout(self)
         self.cover = ImageLabel(self)
         
         self.layout.addWidget(self.cover)
         try:
-            if limit <= 4:
-                runnable = DownloadImageRunnable(imagePath, self.cover)
-                # Use the class attribute for the QThreadPool
-                pool.start(runnable)
-                limit += 1
+            self.add_image_download_task(imagePath, self.cover)
         except Exception as e:
             print(f"Failed to load image: {e}")
+
+    def add_image_download_task(self, url, cover):
+        image_queue.put((url, cover))
 
 class DownloaderThread(QThread):
     progress_update = pyqtSignal(dict)  # Emit both song_id and song_progress
@@ -81,10 +85,9 @@ class DownloaderThread(QThread):
     def run(self):
         try:
 
-            # Call your Python script
             self.process = subprocess.Popen([
                 sys.executable, "-u",
-                "download.py",
+                "src/download.py",
                 '--song_url',
                 self.query,
                 '--output', self.custom_directory,
@@ -98,6 +101,7 @@ class DownloaderThread(QThread):
                 print("Output from process:", self.process.stdout)
 
 
+
             # Read from self.process.stdout line by line
             for line in iter(self.process.stdout.readline, ''):
                 line = line.strip()
@@ -107,17 +111,19 @@ class DownloaderThread(QThread):
                     #print(f"Parsed JSON: {data}")
                 except json.JSONDecodeError:
                     print(f"Failed to parse line as JSON: {line}")
+            
 
             # Read from self.process.stderr line by line
-            """
-            for line in iter(self.process.stderr.readline, ''):
-                line = line.strip()
-                print(f"Error from process: {line}")
-            """
+
+            if self.process.stderr is not None:            
+                for line in iter(self.process.stderr.readline, ''):
+                    line = line.strip()
+                    print(f"Error from process: {line}")
+            
             if self.process:            
                 return_code = self.process.wait()
-                self.process.stdout.close()
             else:
+                print("Process is None")
                 self.stopped = True
 
             if self.stopped == True:
@@ -125,6 +131,7 @@ class DownloaderThread(QThread):
             elif return_code == 0:
                 self.finished.emit("Download Completed!")
             else:
+                print(f"Download failed with return code: {return_code}")
                 self.finished.emit("Download Failed!")
 
         except Exception as e:
@@ -137,6 +144,11 @@ class DownloaderThread(QThread):
                 print(stat)
             """
             self.finished.emit("Download Failed!")
+        finally:
+            if self.process is not None:
+                self.process.terminate()
+            
+
     def stop(self):
         if self.process is not None:
             self.process.terminate()
